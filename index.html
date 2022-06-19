@@ -3,126 +3,165 @@
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=1920" />
-        <title>Aola Viewer</title>
-        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/YieldRay/hashRouter/src/router.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>*</title>
+        <link rel="stylesheet" href="https://cdn.cbd.int/landsoul@latest/dist/landsoul.css" />
         <style>
-            * {
-                box-sizing: border-box;
+            .container {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5em;
             }
-            body {
-                min-height: 100vh;
+
+            @media screen and (min-width: 800px) {
+                .container {
+                    grid-template-columns: repeat(3, 1fr);
+                }
             }
-            input,
-            button {
-                font-size: 2em;
-                padding: 1.5em 3em;
+
+            @media screen and (min-width: 1000px) {
+                .container {
+                    grid-template-columns: repeat(4, 1fr);
+                }
             }
-            header {
-                text-align: center;
-                margin-top: 2.5em;
+
+            @media screen and (min-width: 1200px) {
+                .container {
+                    grid-template-columns: repeat(5, 1fr);
+                }
             }
-            .rotate {
-                margin-top: 30em;
-                transform: rotate(0.25turn);
+
+            img {
+                max-width: 100%;
             }
-            .spine-player {
-                pointer-events: none !important;
+
+            .item {
+                transition: all 0.3s;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between;
+                border: 1px solid #d4dbdc;
+                border-radius: 4px;
             }
-            .spine-player-controls {
-                pointer-events: auto !important;
+
+            .item:hover {
+                opacity: 0.8;
+                background: rgba(0, 0, 0, 0.05);
+            }
+
+            .item:target {
+                outline: 2px solid #000;
+            }
+
+            .pannel {
+                padding: 1em;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                gap: 1em;
+                flex-wrap: wrap;
+                min-height: 120vh;
+            }
+
+            .backtop {
+                --distance: 1em;
+                --size: 3em;
+                position: fixed;
+                right: var(--distance);
+                bottom: var(--distance);
+                width: var(--size);
+                height: var(--size);
+                border-radius: var(--size);
+                border: solid 1px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                background: #fff;
+                cursor: pointer;
+                display: grid;
+                place-items: center;
+                user-select: none;
             }
         </style>
     </head>
+
     <body>
         <main id="app">
-            <header>
-                <div class="control">
-                    <input v-model="id" placeholder="Edit me" />
-                    <button @click="change">Change</button>
-                </div>
-                <div class="control">
-                    <button @click="change(id-1)">- Prev</button>
-                    &nbsp;
-                    <button @click="rotate" :class="{debugrotate: isRotate}">Rotate</button>
-                    &nbsp;
-                    <button @click="change(id+1)">Next +</button>
-                </div>
-            </header>
-            <div id="player"></div>
-        </main>
-    </body>
-    <script>
-        function loadStyle(url) {
-            let link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.type = "text/css";
-            link.href = url;
-            let head = document.getElementsByTagName("head")[0];
-            head.appendChild(link);
-        }
+            <div class="pannel">
+                <a v-for="id in ids" :href="'#'+id">
+                    <button>{{id}}</button>
+                </a>
+            </div>
 
-        function loadScript(url) {
-            return new Promise((resolve, reject) => {
-                let script = document.createElement("script");
-                script.src = url;
-                let head = document.getElementsByTagName("head")[0];
-                head.appendChild(script);
-                script.onload = () => resolve();
-                script.onerror = () => reject();
-            });
-        }
-        function sleep(time) {
-            return new Promise((resolve) => setTimeout(resolve, time));
-        }
-        const app = new Vue({
-            el: "#app",
-            data: {
-                id: 4412,
-                res: {},
-                version: "3.7",
-                isRotate: false,
-            },
-            methods: {
-                change: async function (n) {
-                    if (typeof n === "number") {
-                        this.id = Number(n);
-                    }
-                    if ($router.path != this.id) $router.path = String(this.id);
-                    document.title = `Aola View ${this.id}`;
-                    this.res = await fetch(
-                        `http://aola.100bt.com/h5/peticon/newbreath/petmovie${this.id}/petmovie${this.id}~202112241640285894.json`
-                    ).then((res) => res.json());
-                    this.version = this.res.skeleton.spine.slice(0, 3);
-                    await loadScript(`./spine-player-${this.version}.js`);
-                    loadStyle(`./spine-player-${this.version}.css`);
-                    player.remove();
-                    let div = document.createElement("div");
-                    div.id = "player";
-                    document.body.append(div);
-                    new spine.SpinePlayer("player", {
-                        jsonUrl: `http://aola.100bt.com/h5/peticon/newbreath/petmovie${this.id}/petmovie${this.id}~202112241640285894.json`,
-                        atlasUrl: `http://aola.100bt.com/h5/peticon/newbreath/petmovie${this.id}/petmovie${this.id}~202112241640285894.atlas`,
-                        animation: "0",
-                        backgroundColor: "#ffffff",
-                        showControls: false, // Hide the player controls
-                        premultipliedAlpha: false,
-                        viewport: {
-                            width: 100,
-                            height: 100,
-                        },
-                    });
-                },
-                rotate: function () {
-                    this.isRotate = !!!this.isRotate;
-                    window.document.querySelector(".spine-player-canvas").classList.toggle("rotate");
-                },
-            },
-            mounted: function () {
-                const id = Number($router.path);
-                if (id > 1000 && id < 5000) this.change(id);
+            <div class="container">
+                <ray-item v-for="id in ids" :id="id"></ray-item>
+            </div>
+        </main>
+
+        <div class="backtop" onClick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+    </body>
+
+    <script type="module">
+        import { createApp } from "https://cdn.cbd.int/vue@3/dist/vue.esm-browser.prod.js";
+        import ids from "./data.json" assert { type: "json" };
+
+        const app = createApp({
+            data() {
+                return {
+                    ids,
+                };
             },
         });
+
+        app.component("ray-item", {
+            props: ["id"],
+            computed: {
+                src() {
+                    const id = this.id;
+
+                    const url = new URL(`./${id}/peticon${id}_1.png`, location.href);
+                    if (
+                        url.hostname === "localhost" ||
+                        url.hostname.startsWith("127") ||
+                        url.hostname.startsWith("192.168")
+                    )
+                        return url.href;
+
+                    // wordpress cdn
+                    return "https://i0.wp.com/" + url.host + url.pathname + url.search;
+                },
+                href() {
+                    return `./${this.id}/index.html`;
+                },
+            },
+            data() {
+                return {
+                    isIntoView: false,
+                    io: undefined,
+                };
+            },
+            mounted() {
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.intersectionRatio > 0 && this.isIntoView === false) {
+                            this.isIntoView = true;
+                            io.disconnect();
+                        }
+                    });
+                });
+                io.observe(this.$refs.el);
+                this.io = io;
+            },
+            unmounted() {
+                this.io.disconnect();
+            },
+            template: `
+                <a ref="el" class="item" :id="id" :href="href" target="_blank">
+                    <img :src="isIntoView?src:'https://s2.loli.net/2023/05/25/xwtjKmZBsIUhyb5.gif'" :alt="id" />
+                    <small> {{id}} </small>
+                </a>
+            `,
+        });
+
+        app.mount("#app");
     </script>
 </html>

@@ -1,10 +1,9 @@
 {
-  "name": "aolastar",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "node build"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+    "name": "aolastar",
+    "private": true,
+    "version": "0.0.0",
+    "scripts": {
+        "build": "node build",
+        "deploy": "surgecli upload . aolastar.surge.sh"
+    }
 }
